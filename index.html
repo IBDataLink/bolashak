@@ -132,23 +132,27 @@
             flex: 1;
         }
 
-        /* Конкретно строка Дата поставки / Тип заявки */
-        .date-type-row .date-col {
-            flex: 0 0 40%;
-        }
+ .date-type-row {
+    display: flex;
+    gap: 30px; /* ← интервал между полями */
+}
 
-        .date-type-row .type-col {
-            flex: 0 0 40%;
-        }
+.date-type-row .date-col {
+    flex: 0 0 50%;
+}
 
-        @media (max-width: 360px) {
-            .date-type-row .date-col {
-                flex: 0 0 55%;
-            }
-            .date-type-row .type-col {
-                flex: 0 0 45%;
-            }
-        }
+.date-type-row .type-col {
+    flex: 0 0 40%;
+}
+
+@media (max-width: 360px) {
+    .date-type-row .date-col {
+        flex: 0 0 55%;
+    }
+    .date-type-row .type-col {
+        flex: 0 0 45%;
+    }
+}
 
         .badge {
             display: inline-flex;
