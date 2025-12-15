@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Приём заявок</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .app {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: #111827;
+            color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        header span {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        main {
+            flex: 1;
+            padding: 12px 12px 80px;
+            overflow-y: auto;
+        }
+
+        .section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title small {
+            font-size: 11px;
+            font-weight: 400;
+            color: #6b7280;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #4b5563;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            background: #f9fafb;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.1);
+            background: #ffffff;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .field-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .field-row > div {
+            flex: 1;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 6px;
+            border-radius: 999px;
+            font-size: 10px;
+            background: #e5f0ff;
+            color: #1d4ed8;
+        }
+
+        .products-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .product-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .product-info {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .product-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .product-meta {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .product-price {
+            font-size: 11px;
+            font-weight: 500;
+            color: #2563eb;
+        }
+
+        .qty-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 72px;
+        }
+
+        .qty-btn {
+            border: none;
+            border-radius: 999px;
+            width: 24px;
+            height: 24px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111827;
+            color: #fff;
+        }
+
+        .qty-display {
+            font-size: 12px;
+            padding: 3px 6px;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            min-width: 40px;
+            text-align: center;
+            background: #fff;
+        }
+
+        .cart-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            padding: 6px 8px;
+            border-radius: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .cart-item-main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-item-name {
+            font-weight: 500;
+        }
+
+        .cart-item-meta {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .cart-item-price {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .cart-delete {
+            border: none;
+            background: none;
+            font-size: 11px;
+            color: #ef4444;
+            padding: 0;
+        }
+
+        .cart-empty {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .cart-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .bottom-bar {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 12px 12px;
+            background: linear-gradient(to top, #f3f4f6, rgba(243, 244, 246, 0.8));
+        }
+
+        .bottom-inner {
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .bottom-info {
+            flex: 1;
+            font-size: 11px;
+            color: #4b5563;
+        }
+
+        .bottom-info strong {
+            display: block;
+            font-size: 13px;
+            color: #111827;
+        }
+
+        .btn-primary {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #16a34a;
+            color: #fff;
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header>
+        <div>
+            <h1>Приём заявок</h1>
+            <span>Мобильный кабинет торгового представителя</span>
+        </div>
+        <div style="font-size:11px;text-align:right;">
+            <div id="repName">T/P #001</div>
+            <div id="todayDate"></div>
+        </div>
+    </header>
+
+    <main>
+        <!-- ДАННЫЕ КЛИЕНТА -->
+        <section class="section">
+            <div class="section-title">
+                Клиент
+                <span class="badge">Обязательно</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <div>
+                    <label for="clientName">Название торговой точки</label>
+                    <input id="clientName" type="text" placeholder="Магазин «Пример»">
+                </div>
+                <div>
+                    <label for="clientCode">Код клиента / ИНН (если есть)</label>
+                    <input id="clientCode" type="text" placeholder="Код в 1С или ИНН">
+                </div>
+                <div>
+                    <label for="clientAddress">Адрес</label>
+                    <input id="clientAddress" type="text" placeholder="Город, улица, дом">
+                </div>
+                <div class="field-row">
+                    <div>
+                        <label for="deliveryDate">Дата поставки</label>
+                        <input id="deliveryDate" type="date">
+                    </div>
+                    <div>
+                        <label for="deliveryType">Тип заявки</label>
+                        <select id="deliveryType">
+                            <option value="today">В день</option>
+                            <option value="tomorrow">На завтра</option>
+                            <option value="schedule">По графику</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ВЫБОР ТОВАРА -->
+        <section class="section">
+            <div class="section-title">
+                Товары
+                <small>Нажмите + для добавления в заявку</small>
+            </div>
+
+            <div class="field-row" style="margin-bottom:8px;">
+                <div>
+                    <label for="categoryFilter">Категория</label>
+                    <select id="categoryFilter">
+                        <!-- Только общий пункт, всё остальное — из Google Sheets -->
+                        <option value="all">Все</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="searchProduct">Поиск</label>
+                    <input id="searchProduct" type="text" placeholder="Начните вводить название">
+                </div>
+            </div>
+
+            <div class="products-list" id="productsList">
+                <!-- Карточки товаров рендерятся скриптом -->
+            </div>
+        </section>
+
+        <!-- КОРЗИНА -->
+        <section class="section">
+            <div class="section-title">
+                Заявка
+                <small>Товары в заказе</small>
+            </div>
+            <div id="cartList" class="cart-list">
+                <div class="cart-empty">Товары пока не выбраны. Добавьте их из списка выше.</div>
+            </div>
+            <div class="cart-summary" id="cartSummary" style="display:none;">
+                <div>Итого позиций: <span id="totalItems">0</span></div>
+                <div>Сумма: <span id="totalAmount">0</span> ₸</div>
+            </div>
+            <div class="chip-row">
+                <div class="chip" id="caseInfoChip">Суммарные кейсы: <span id="totalCases">0</span></div>
+            </div>
+        </section>
+
+        <!-- ДОПОЛНИТЕЛЬНО -->
+        <section class="section">
+            <div class="section-title">
+                Дополнительно
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <div>
+                    <label for="comment">Комментарий к заявке</label>
+                    <textarea id="comment" placeholder="Например, выгрузка с заднего двора, контактное лицо, время работы"></textarea>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- НИЖНЯЯ ПАНЕЛЬ -->
+    <div class="bottom-bar">
+        <div class="bottom-inner">
+            <div class="bottom-info">
+                <strong id="bottomAmount">0 ₸</strong>
+                Кейсы: <span id="bottomCases">0</span> · Позиций: <span id="bottomItems">0</span>
+            </div>
+            <button type="button" class="btn-primary" id="submitOrderBtn" disabled>
+                Отправить
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ====== НАСТРОЙКИ API ======
+    // URL Apps Script для товаров (Google Sheets)
+    const PRODUCTS_API_URL = 'https://script.google.com/macros/s/AKfycbyzxmamE7twcF98CSwcdHEuQF-Q10NkXJiJ1K9oNEvRUfuXtmZzn7EKL3veoDPrS4BC2Q/exec';
+
+    // Вебхук n8n для отправки заявки
+    const ORDER_WEBHOOK_URL = 'https://n8n-n8n.sbifer.easypanel.host/webhook-test/db43e1b5-3a35-45e6-b625-81f03d141629';
+
+    // сюда подгружаем товары из Google Sheets
+    let products = [];
+
+    // Корзина: { productId: { product, qty } }
+    const cart = {};
+    const CASE_THRESHOLD = 10; // Минимальное количество кейсов для предупреждения (можешь менять)
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initTodayDate();
+        setupEvents();
+
+        // Сначала подгружаем товары, потом категории, потом всё остальное
+        loadProducts().then(() => {
+            populateCategories();
+            renderProducts();
+            updateUI();
+        }).catch(() => {
+            renderProducts();
+            updateUI();
+        });
+    });
+
+    async function loadProducts() {
+        try {
+            const res = await fetch(PRODUCTS_API_URL);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+
+            products = (data.products || []).map(p => ({
+                id: String(p.id),
+                name: String(p.name),
+                price: Number(p.price) || 0,
+                category: (p.category || '').toLowerCase(),
+                packType: p.packType || 'case',
+                unitsPerCase: p.unitsPerCase || 6
+            }));
+
+            console.log('Товары загружены из Google Sheets:', products);
+        } catch (err) {
+            console.error('Ошибка загрузки товаров из Google Sheets:', err);
+            alert('Не удалось загрузить список товаров из Google Sheets. Проверь URL Apps Script и права доступа.');
+            products = [];
+        }
+    }
+
+    // Динамическое создание списка категорий по столбцу E
+    function populateCategories() {
+        const select = document.getElementById('categoryFilter');
+        if (!select) return;
+
+        // Оставляем только пункт "Все"
+        select.innerHTML = '<option value="all">Все</option>';
+
+        const categoriesSet = new Set();
+
+        products.forEach(p => {
+            const cat = (p.category || '').trim();
+            if (!cat) return;
+            categoriesSet.add(cat);
+        });
+
+        Array.from(categoriesSet).sort().forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = formatCategoryLabel(cat);
+            select.appendChild(opt);
+        });
+    }
+
+    // Красивое отображение названия категории
+    function formatCategoryLabel(cat) {
+        const lower = cat.toLowerCase();
+        if (lower === 'syrup' || lower === 'сироп') return 'Сиропы';
+        return cat.charAt(0).toUpperCase() + cat.slice(1);
+    }
+
+    function initTodayDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('todayDate').textContent = `${dd}.${mm}.${yyyy}`;
+        document.getElementById('deliveryDate').value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    function setupEvents() {
+        document.getElementById('categoryFilter').addEventListener('change', () => {
+            renderProducts();
+            updateUI();
+        });
+        document.getElementById('searchProduct').addEventListener('input', () => {
+            renderProducts();
+            updateUI();
+        });
+
+        document.getElementById('submitOrderBtn').addEventListener('click', submitOrder);
+        document.getElementById('clientName').addEventListener('input', updateUI);
+    }
+
+    function renderProducts() {
+        const container = document.getElementById('productsList');
+        container.innerHTML = '';
+
+        const category = document.getElementById('categoryFilter').value;
+        const search = document.getElementById('searchProduct').value.trim().toLowerCase();
+
+        const filtered = products.filter(p => {
+            const matchCat = category === 'all' || p.category === category;
+            const matchSearch = !search || p.name.toLowerCase().includes(search);
+            return matchCat && matchSearch;
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div style="font-size:12px;color:#9ca3af;">По данному фильтру товаров нет</div>';
+            return;
+        }
+
+        filtered.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+
+            const info = document.createElement('div');
+            info.className = 'product-info';
+            info.innerHTML = `
+                <div class="product-name">${product.name}</div>
+                <div class="product-meta">
+                    ${product.packType === 'case'
+                        ? 'Упаковка: кейс · ' + product.unitsPerCase + ' шт'
+                        : 'Штучный товар'}
+                </div>
+                <div class="product-price">${product.price} ₸ / ${
+                    product.packType === 'case' ? 'кейс' : 'шт'
+                }</div>
+            `;
+
+            const controls = document.createElement('div');
+            controls.className = 'qty-controls';
+
+            const minusBtn = document.createElement('button');
+            minusBtn.type = 'button';
+            minusBtn.className = 'qty-btn';
+            minusBtn.textContent = '−';
+            minusBtn.addEventListener('click', () => changeQty(product.id, -1));
+
+            const display = document.createElement('div');
+            display.className = 'qty-display';
+            display.id = `qty-${product.id}`;
+            display.textContent = cart[product.id]?.qty || 0;
+
+            const plusBtn = document.createElement('button');
+            plusBtn.type = 'button';
+            plusBtn.className = 'qty-btn';
+            plusBtn.textContent = '+';
+            plusBtn.addEventListener('click', () => changeQty(product.id, 1));
+
+            controls.appendChild(plusBtn);
+            controls.appendChild(display);
+            controls.appendChild(minusBtn);
+
+            card.appendChild(info);
+            card.appendChild(controls);
+
+            container.appendChild(card);
+        });
+    }
+
+    function changeQty(productId, delta) {
+        const product = products.find(p => p.id === productId);
+        if (!product) return;
+
+        if (!cart[productId]) {
+            cart[productId] = { product, qty: 0 };
+        }
+
+        const newQty = cart[productId].qty + delta;
+        if (newQty <= 0) {
+            delete cart[productId];
+        } else {
+            cart[productId].qty = newQty;
+        }
+
+        const display = document.getElementById(`qty-${productId}`);
+        if (display) {
+            display.textContent = cart[productId]?.qty || 0;
+        }
+
+        renderCart();
+        updateUI();
+    }
+
+    function renderCart() {
+        const container = document.getElementById('cartList');
+        container.innerHTML = '';
+
+        const entries = Object.values(cart);
+        if (entries.length === 0) {
+            container.innerHTML = '<div class="cart-empty">Товары пока не выбраны. Добавьте их из списка выше.</div>';
+            document.getElementById('cartSummary').style.display = 'none';
+            return;
+        }
+
+        entries.forEach(item => {
+            const { product, qty } = item;
+            const line = document.createElement('div');
+            line.className = 'cart-item';
+
+            const main = document.createElement('div');
+            main.className = 'cart-item-main';
+            main.innerHTML = `
+                <span class="cart-item-name">${product.name}</span>
+                <span class="cart-item-meta">
+                    ${qty} ${product.packType === 'case' ? 'кейс(ов)' : 'шт'} · 
+                    ${product.packType === 'case' ? product.unitsPerCase + ' шт в кейсе' : 'штучный'}
+                </span>
+            `;
+
+            const actions = document.createElement('div');
+            actions.className = 'cart-item-actions';
+
+            const price = document.createElement('div');
+            price.className = 'cart-item-price';
+            price.textContent = (qty * product.price).toLocaleString('ru-RU') + ' ₸';
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'cart-delete';
+            delBtn.textContent = 'Удалить';
+            delBtn.addEventListener('click', () => {
+                delete cart[product.id];
+                const display = document.getElementById(`qty-${product.id}`);
+                if (display) display.textContent = 0;
+                renderCart();
+                updateUI();
+            });
+
+            actions.appendChild(price);
+            actions.appendChild(delBtn);
+
+            line.appendChild(main);
+            line.appendChild(actions);
+
+            container.appendChild(line);
+        });
+
+        document.getElementById('cartSummary').style.display = 'flex';
+    }
+
+    function calcTotals() {
+        let totalAmount = 0;
+        let totalItems = 0;
+        let totalCases = 0;
+
+        Object.values(cart).forEach(({ product, qty }) => {
+            totalItems += 1;
+            totalAmount += qty * product.price;
+
+            if (product.packType === 'case') {
+                totalCases += qty;
+            } else {
+                totalCases += 0;
+            }
+        });
+
+        return { totalAmount, totalItems, totalCases };
+    }
+
+    function updateUI() {
+        const { totalAmount, totalItems, totalCases } = calcTotals();
+
+        document.getElementById('totalItems').textContent = totalItems;
+        document.getElementById('totalAmount').textContent = totalAmount.toLocaleString('ru-RU');
+        document.getElementById('totalCases').textContent = totalCases;
+
+        document.getElementById('bottomAmount').textContent = totalAmount.toLocaleString('ru-RU') + ' ₸';
+        document.getElementById('bottomItems').textContent = totalItems;
+        document.getElementById('bottomCases').textContent = totalCases;
+
+        const hasClient = document.getElementById('clientName').value.trim().length > 0;
+        const hasItems = Object.keys(cart).length > 0;
+
+        const submitBtn = document.getElementById('submitOrderBtn');
+        submitBtn.disabled = !(hasClient && hasItems);
+    }
+
+    function collectOrderData() {
+        const { totalAmount, totalItems, totalCases } = calcTotals();
+
+        return {
+            client: {
+                name: document.getElementById('clientName').value.trim(),
+                code: document.getElementById('clientCode').value.trim(),
+                address: document.getElementById('clientAddress').value.trim()
+            },
+            delivery: {
+                date: document.getElementById('deliveryDate').value,
+                type: document.getElementById('deliveryType').value
+            },
+            items: Object.values(cart).map(({ product, qty }) => ({
+                productId: product.id,
+                name: product.name,
+                qty,
+                packType: product.packType,
+                unitsPerCase: product.unitsPerCase,
+                pricePerUnit: product.price
+            })),
+            comment: document.getElementById('comment').value.trim(),
+            totals: {
+                amount: totalAmount,
+                items: totalItems,
+                cases: totalCases
+            },
+            meta: {
+                repName: document.getElementById('repName').textContent,
+                createdAt: new Date().toISOString()
+            }
+        };
+    }
+
+    async function submitOrder() {
+        const payload = collectOrderData();
+        const { totals } = payload;
+
+        if (!payload.client.name) {
+            alert('Заполните название торговой точки.');
+            return;
+        }
+
+        if (Object.keys(cart).length === 0) {
+            alert('Добавьте хотя бы один товар в заявку.');
+            return;
+        }
+
+        if (totals.cases < CASE_THRESHOLD) {
+            const proceed = confirm(
+                `Суммарно только ${totals.cases} кейсов, минимум ${CASE_THRESHOLD}. Всё равно отправить заявку?`
+            );
+            if (!proceed) return;
+        }
+
+        try {
+            const res = await fetch(ORDER_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                throw new Error('HTTP ' + res.status);
+            }
+
+            alert('Заявка успешно отправлена!');
+            console.log('Отправленная заявка:', payload);
+        } catch (err) {
+            console.error('Ошибка отправки заявки на вебхук:', err);
+            alert('Ошибка отправки заявки. Проверь соединение или настройку вебхука n8n.');
+        }
+    }
+</script>
+</body>
+</html>
