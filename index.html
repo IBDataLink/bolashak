@@ -44,14 +44,6 @@
             z-index: 50;
         }
 
-.field-date {
-    flex: 0 0 140px; /* ширина даты */
-}
-
-.field-type {
-    flex: 1;
-}
-
         header h1 {
             margin: 0;
             font-size: 18px;
@@ -138,6 +130,24 @@
 
         .field-row > div {
             flex: 1;
+        }
+
+        /* Конкретно строка Дата поставки / Тип заявки */
+        .date-type-row .date-col {
+            flex: 0 0 50%;
+        }
+
+        .date-type-row .type-col {
+            flex: 0 0 45%;
+        }
+
+        @media (max-width: 360px) {
+            .date-type-row .date-col {
+                flex: 0 0 55%;
+            }
+            .date-type-row .type-col {
+                flex: 0 0 45%;
+            }
         }
 
         .badge {
@@ -363,7 +373,7 @@
             <span>Мобильный кабинет торгового представителя</span>
         </div>
         <div style="font-size:11px;text-align:right;">
-            <div id="repName">ТОО Болашак</div>
+            <div id="repName">T/P #001</div>
             <div id="todayDate"></div>
         </div>
     </header>
@@ -388,20 +398,20 @@
                     <label for="clientAddress">Адрес</label>
                     <input id="clientAddress" type="text" placeholder="Город, улица, дом">
                 </div>
-              <div class="field-row">
-    <div class="field-date">
-        <label for="deliveryDate">Дата поставки</label>
-        <input id="deliveryDate" type="date">
-    </div>
-    <div class="field-type">
-        <label for="deliveryType">Тип заявки</label>
-        <select id="deliveryType">
-            <option value="today">В день</option>
-            <option value="tomorrow">На завтра</option>
-            <option value="schedule">По графику</option>
-        </select>
-    </div>
-</div>
+                <div class="field-row date-type-row">
+                    <div class="date-col">
+                        <label for="deliveryDate">Дата поставки</label>
+                        <input id="deliveryDate" type="date">
+                    </div>
+                    <div class="type-col">
+                        <label for="deliveryType">Тип заявки</label>
+                        <select id="deliveryType">
+                            <option value="today">В день</option>
+                            <option value="tomorrow">На завтра</option>
+                            <option value="schedule">По графику</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -504,7 +514,6 @@
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
 
-            // Всё считаем в штуках
             products = (data.products || []).map(p => ({
                 id: String(p.id),
                 name: String(p.name),
