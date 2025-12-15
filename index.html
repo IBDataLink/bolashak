@@ -44,6 +44,14 @@
             z-index: 50;
         }
 
+.field-date {
+    flex: 0 0 140px; /* ширина даты */
+}
+
+.field-type {
+    flex: 1;
+}
+
         header h1 {
             margin: 0;
             font-size: 18px;
@@ -380,20 +388,20 @@
                     <label for="clientAddress">Адрес</label>
                     <input id="clientAddress" type="text" placeholder="Город, улица, дом">
                 </div>
-                <div class="field-row">
-                    <div>
-                        <label for="deliveryDate">Дата поставки</label>
-                        <input id="deliveryDate" type="date">
-                    </div>
-                    <div>
-                        <label for="deliveryType">Тип заявки</label>
-                        <select id="deliveryType">
-                            <option value="today">В день</option>
-                            <option value="tomorrow">На завтра</option>
-                            <option value="schedule">По графику</option>
-                        </select>
-                    </div>
-                </div>
+              <div class="field-row">
+    <div class="field-date">
+        <label for="deliveryDate">Дата поставки</label>
+        <input id="deliveryDate" type="date">
+    </div>
+    <div class="field-type">
+        <label for="deliveryType">Тип заявки</label>
+        <select id="deliveryType">
+            <option value="today">В день</option>
+            <option value="tomorrow">На завтра</option>
+            <option value="schedule">По графику</option>
+        </select>
+    </div>
+</div>
             </div>
         </section>
 
