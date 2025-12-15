@@ -31,6 +31,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: sticky;   /* закрепляем шапку */
+            top: 0;
+            z-index: 20;
         }
 
         header h1 {
@@ -46,7 +49,6 @@
         main {
             flex: 1;
             padding: 12px 12px 80px;
-            overflow-y: auto;
         }
 
         .section {
@@ -163,7 +165,6 @@
         .product-price {
             font-size: 11px;
             font-weight: 500;
-            color: #2563eb;
         }
 
         .qty-controls {
@@ -263,12 +264,13 @@
         }
 
         .bottom-bar {
-            position: sticky;
+            position: sticky; /* фиксируем нижнюю панель */
             bottom: 0;
             left: 0;
             right: 0;
             padding: 10px 12px 12px;
-            background: linear-gradient(to top, #f3f4f6, rgba(243, 244, 246, 0.8));
+            background: linear-gradient(to top, #f3f4f6, rgba(243, 244, 246, 0.9));
+            z-index: 20;
         }
 
         .bottom-inner {
@@ -334,7 +336,7 @@
             <span>Мобильный кабинет торгового представителя</span>
         </div>
         <div style="font-size:11px;text-align:right;">
-            <div id="repName">ТОО Болашак</div>
+            <div id="repName">T/P #001</div>
             <div id="todayDate"></div>
         </div>
     </header>
@@ -416,7 +418,7 @@
                 <div>Сумма: <span id="totalAmount">0</span> ₸</div>
             </div>
             <div class="chip-row">
-                <div class="chip" id="caseInfoChip">Суммарные кейсы: <span id="totalCases">0</span></div>
+                <div class="chip">Всего: <span id="totalQty">0</span> шт</div>
             </div>
         </section>
 
@@ -439,7 +441,7 @@
         <div class="bottom-inner">
             <div class="bottom-info">
                 <strong id="bottomAmount">0 ₸</strong>
-                Кейсы: <span id="bottomCases">0</span> · Позиций: <span id="bottomItems">0</span>
+                Штук: <span id="bottomQty">0</span> · Позиций: <span id="bottomItems">0</span>
             </div>
             <button type="button" class="btn-primary" id="submitOrderBtn" disabled>
                 Отправить
@@ -461,13 +463,11 @@
 
     // Корзина: { productId: { product, qty } }
     const cart = {};
-    const CASE_THRESHOLD = 10; // Минимальное количество кейсов для предупреждения (можешь менять)
 
     document.addEventListener('DOMContentLoaded', () => {
         initTodayDate();
         setupEvents();
 
-        // Сначала подгружаем товары, потом категории, потом всё остальное
         loadProducts().then(() => {
             populateCategories();
             renderProducts();
@@ -484,13 +484,14 @@
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
 
+            // Всё считаем в штуках
             products = (data.products || []).map(p => ({
                 id: String(p.id),
                 name: String(p.name),
                 price: Number(p.price) || 0,
                 category: (p.category || '').toLowerCase(),
-                packType: p.packType || 'case',
-                unitsPerCase: p.unitsPerCase || 6
+                packType: 'unit',
+                unitsPerCase: 1
             }));
 
             console.log('Товары загружены из Google Sheets:', products);
@@ -506,7 +507,6 @@
         const select = document.getElementById('categoryFilter');
         if (!select) return;
 
-        // Оставляем только пункт "Все"
         select.innerHTML = '<option value="all">Все</option>';
 
         const categoriesSet = new Set();
@@ -525,10 +525,7 @@
         });
     }
 
-    // Красивое отображение названия категории
     function formatCategoryLabel(cat) {
-        const lower = cat.toLowerCase();
-        if (lower === 'syrup' || lower === 'сироп') return 'Сиропы';
         return cat.charAt(0).toUpperCase() + cat.slice(1);
     }
 
@@ -581,14 +578,8 @@
             info.className = 'product-info';
             info.innerHTML = `
                 <div class="product-name">${product.name}</div>
-                <div class="product-meta">
-                    ${product.packType === 'case'
-                        ? 'Упаковка: кейс · ' + product.unitsPerCase + ' шт'
-                        : 'Штучный товар'}
-                </div>
-                <div class="product-price">${product.price} ₸ / ${
-                    product.packType === 'case' ? 'кейс' : 'шт'
-                }</div>
+                <div class="product-meta">Категория: ${formatCategoryLabel(product.category || '')}</div>
+                <div class="product-price">${product.price} ₸ / шт</div>
             `;
 
             const controls = document.createElement('div');
@@ -666,10 +657,7 @@
             main.className = 'cart-item-main';
             main.innerHTML = `
                 <span class="cart-item-name">${product.name}</span>
-                <span class="cart-item-meta">
-                    ${qty} ${product.packType === 'case' ? 'кейс(ов)' : 'шт'} · 
-                    ${product.packType === 'case' ? product.unitsPerCase + ' шт в кейсе' : 'штучный'}
-                </span>
+                <span class="cart-item-meta">${qty} шт</span>
             `;
 
             const actions = document.createElement('div');
@@ -706,32 +694,27 @@
     function calcTotals() {
         let totalAmount = 0;
         let totalItems = 0;
-        let totalCases = 0;
+        let totalQty = 0;
 
         Object.values(cart).forEach(({ product, qty }) => {
             totalItems += 1;
             totalAmount += qty * product.price;
-
-            if (product.packType === 'case') {
-                totalCases += qty;
-            } else {
-                totalCases += 0;
-            }
+            totalQty += qty;
         });
 
-        return { totalAmount, totalItems, totalCases };
+        return { totalAmount, totalItems, totalQty };
     }
 
     function updateUI() {
-        const { totalAmount, totalItems, totalCases } = calcTotals();
+        const { totalAmount, totalItems, totalQty } = calcTotals();
 
         document.getElementById('totalItems').textContent = totalItems;
         document.getElementById('totalAmount').textContent = totalAmount.toLocaleString('ru-RU');
-        document.getElementById('totalCases').textContent = totalCases;
+        document.getElementById('totalQty').textContent = totalQty;
 
         document.getElementById('bottomAmount').textContent = totalAmount.toLocaleString('ru-RU') + ' ₸';
         document.getElementById('bottomItems').textContent = totalItems;
-        document.getElementById('bottomCases').textContent = totalCases;
+        document.getElementById('bottomQty').textContent = totalQty;
 
         const hasClient = document.getElementById('clientName').value.trim().length > 0;
         const hasItems = Object.keys(cart).length > 0;
@@ -741,7 +724,7 @@
     }
 
     function collectOrderData() {
-        const { totalAmount, totalItems, totalCases } = calcTotals();
+        const { totalAmount, totalItems, totalQty } = calcTotals();
 
         return {
             client: {
@@ -757,15 +740,13 @@
                 productId: product.id,
                 name: product.name,
                 qty,
-                packType: product.packType,
-                unitsPerCase: product.unitsPerCase,
                 pricePerUnit: product.price
             })),
             comment: document.getElementById('comment').value.trim(),
             totals: {
                 amount: totalAmount,
                 items: totalItems,
-                cases: totalCases
+                quantity: totalQty
             },
             meta: {
                 repName: document.getElementById('repName').textContent,
@@ -776,7 +757,6 @@
 
     async function submitOrder() {
         const payload = collectOrderData();
-        const { totals } = payload;
 
         if (!payload.client.name) {
             alert('Заполните название торговой точки.');
@@ -786,13 +766,6 @@
         if (Object.keys(cart).length === 0) {
             alert('Добавьте хотя бы один товар в заявку.');
             return;
-        }
-
-        if (totals.cases < CASE_THRESHOLD) {
-            const proceed = confirm(
-                `Отправить заявку?`
-            );
-            if (!proceed) return;
         }
 
         try {
