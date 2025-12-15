@@ -132,27 +132,27 @@
             flex: 1;
         }
 
- .date-type-row {
-    display: flex;
-    gap: 30px; /* ← интервал между полями */
-}
+        .date-type-row {
+            display: flex;
+            gap: 30px; /* интервал между полями */
+        }
 
-.date-type-row .date-col {
-    flex: 0 0 50%;
-}
+        .date-type-row .date-col {
+            flex: 0 0 50%;
+        }
 
-.date-type-row .type-col {
-    flex: 0 0 40%;
-}
+        .date-type-row .type-col {
+            flex: 0 0 40%;
+        }
 
-@media (max-width: 360px) {
-    .date-type-row .date-col {
-        flex: 0 0 55%;
-    }
-    .date-type-row .type-col {
-        flex: 0 0 45%;
-    }
-}
+        @media (max-width: 360px) {
+            .date-type-row .date-col {
+                flex: 0 0 55%;
+            }
+            .date-type-row .type-col {
+                flex: 0 0 45%;
+            }
+        }
 
         .badge {
             display: inline-flex;
@@ -392,7 +392,7 @@
             <div style="display:flex;flex-direction:column;gap:8px;">
                 <div>
                     <label for="clientName">Название торговой точки</label>
-                      <input id="clientName" type="text" placeholder="Магазин «Пример»">
+                    <input id="clientName" type="text" placeholder="Магазин «Пример»">
                 </div>
                 <div>
                     <label for="clientCode">Код клиента / ИНН (если есть)</label>
@@ -501,6 +501,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         initTodayDate();
         setupEvents();
+        setupTapToBlur(); // <- новая функция для скрытия клавиатуры
 
         loadProducts().then(() => {
             populateCategories();
@@ -511,6 +512,28 @@
             updateUI();
         });
     });
+
+    // Скрывать клавиатуру при тапе по пустому месту
+    function setupTapToBlur() {
+        ['touchstart', 'mousedown'].forEach(evtName => {
+            document.addEventListener(evtName, (event) => {
+                const active = document.activeElement;
+                if (!active) return;
+
+                const tag = active.tagName.toLowerCase();
+                const isInputLike = ['input', 'textarea', 'select'].includes(tag);
+
+                // Если фокус не в поле ввода — ничего не делаем
+                if (!isInputLike) return;
+
+                // Если тапнули по другому input/textarea/select — тоже не скрываем
+                if (event.target.closest('input, textarea, select')) return;
+
+                // Иначе убираем фокус -> iOS сворачивает клавиатуру
+                active.blur();
+            }, { passive: true });
+        });
+    }
 
     async function loadProducts() {
         try {
