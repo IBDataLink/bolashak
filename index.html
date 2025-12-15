@@ -14,16 +14,19 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #f3f4f6;
             color: #111827;
+            height: 100vh;
+            overflow: hidden; /* скролл только внутри main */
         }
 
         .app {
+            height: 100vh;
             max-width: 480px;
             margin: 0 auto;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
+        /* ФИКСИРОВАННАЯ ШАПКА */
         header {
             background: #111827;
             color: #fff;
@@ -31,9 +34,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;   /* закрепляем шапку */
+
+            position: fixed;
             top: 0;
-            z-index: 20;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            z-index: 50;
         }
 
         header h1 {
@@ -46,9 +54,15 @@
             opacity: 0.8;
         }
 
+        /* СКРОЛЛИРУЕМАЯ СЕРЕДИНА */
         main {
             flex: 1;
-            padding: 12px 12px 80px;
+            overflow-y: auto;
+            padding: 12px 12px 12px;
+
+            /* отступы под фиксированную шапку и нижнюю панель */
+            margin-top: 72px;   /* ориентировочная высота header */
+            margin-bottom: 90px; /* ориентировочная высота bottom-bar */
         }
 
         .section {
@@ -263,14 +277,33 @@
             font-weight: 500;
         }
 
+        .chip-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+        }
+
+        /* ФИКСИРОВАННЫЙ НИЗ */
         .bottom-bar {
-            position: sticky; /* фиксируем нижнюю панель */
+            position: fixed;
             bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 10px 12px 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+
             background: linear-gradient(to top, #f3f4f6, rgba(243, 244, 246, 0.9));
-            z-index: 20;
+            padding: 10px 12px 12px;
+            z-index: 50;
         }
 
         .bottom-inner {
@@ -312,20 +345,6 @@
             opacity: 0.5;
         }
 
-        .chip-row {
-            display: flex;
-            gap: 6px;
-            margin-top: 4px;
-            flex-wrap: wrap;
-        }
-
-        .chip {
-            font-size: 10px;
-            padding: 3px 8px;
-            border-radius: 999px;
-            border: 1px solid #d1d5db;
-            background: #f9fafb;
-        }
     </style>
 </head>
 <body>
@@ -389,7 +408,6 @@
                 <div>
                     <label for="categoryFilter">Категория</label>
                     <select id="categoryFilter">
-                        <!-- Только общий пункт, всё остальное — из Google Sheets -->
                         <option value="all">Все</option>
                     </select>
                 </div>
@@ -452,16 +470,10 @@
 
 <script>
     // ====== НАСТРОЙКИ API ======
-    // URL Apps Script для товаров (Google Sheets)
     const PRODUCTS_API_URL = 'https://script.google.com/macros/s/AKfycbyzxmamE7twcF98CSwcdHEuQF-Q10NkXJiJ1K9oNEvRUfuXtmZzn7EKL3veoDPrS4BC2Q/exec';
-
-    // Вебхук n8n для отправки заявки
     const ORDER_WEBHOOK_URL = 'https://n8n-n8n.sbifer.easypanel.host/webhook-test/db43e1b5-3a35-45e6-b625-81f03d141629';
 
-    // сюда подгружаем товары из Google Sheets
     let products = [];
-
-    // Корзина: { productId: { product, qty } }
     const cart = {};
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -502,7 +514,6 @@
         }
     }
 
-    // Динамическое создание списка категорий по столбцу E
     function populateCategories() {
         const select = document.getElementById('categoryFilter');
         if (!select) return;
@@ -526,6 +537,7 @@
     }
 
     function formatCategoryLabel(cat) {
+        if (!cat) return '';
         return cat.charAt(0).toUpperCase() + cat.slice(1);
     }
 
@@ -719,8 +731,7 @@
         const hasClient = document.getElementById('clientName').value.trim().length > 0;
         const hasItems = Object.keys(cart).length > 0;
 
-        const submitBtn = document.getElementById('submitOrderBtn');
-        submitBtn.disabled = !(hasClient && hasItems);
+        document.getElementById('submitOrderBtn').disabled = !(hasClient && hasItems);
     }
 
     function collectOrderData() {
