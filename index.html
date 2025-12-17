@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="UTF-8">
     <title>Приём заявок</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -371,16 +372,22 @@
 </head>
 <body>
 <div class="app">
-    <header>
-        <div>
-            <h1>Приём заявок</h1>
-            <span>Мобильный кабинет торгового представителя</span>
-        </div>
-        <div style="font-size:11px;text-align:right;">
-            <div id="repName">ТОО Болашак</div>
-            <div id="todayDate"></div>
-        </div>
-    </header>
+ <header>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <img id="tgAvatar" alt="avatar"
+         style="width:34px;height:34px;border-radius:999px;object-fit:cover;background:#374151;display:none;">
+    <div>
+      <h1 style="margin:0;font-size:18px;line-height:1.1;">Приём заявок</h1>
+      <span id="tgNick" style="font-size:11px;opacity:.85;">Гость</span>
+    </div>
+  </div>
+
+  <div style="font-size:11px;text-align:right;">
+    <div id="repName">ТОО Болашак</div>
+    <div id="todayDate"></div>
+  </div>
+</header>
+
 
     <main>
         <!-- ДАННЫЕ КЛИЕНТА -->
@@ -497,10 +504,13 @@
 
     let products = [];
     const cart = {};
-
+let tgUser = null;
+let tgInitData = '';
+    
     document.addEventListener('DOMContentLoaded', () => {
         initTodayDate();
         setupEvents();
+        initTelegramUser();
         setupTapToBlur(); // <- новая функция для скрытия клавиатуры
 
         loadProducts().then(() => {
@@ -513,6 +523,37 @@
         });
     });
 
+    function initTelegramUser() {
+  if (!window.Telegram || !Telegram.WebApp) {
+    console.warn('Telegram WebApp SDK не найден. Открыто не в Telegram?');
+    return;
+  }
+
+  const tg = Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+
+  tgInitData = tg.initData || '';
+  tgUser = tg.initDataUnsafe?.user || null;
+
+  // Показать ник + аватар
+  const nickEl = document.getElementById('tgNick');
+  const avatarEl = document.getElementById('tgAvatar');
+
+  if (tgUser) {
+    const displayName =
+      tgUser.username ? '@' + tgUser.username :
+      [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'Пользователь';
+
+    if (nickEl) nickEl.textContent = displayName;
+
+    if (avatarEl && tgUser.photo_url) {
+      avatarEl.src = tgUser.photo_url;
+      avatarEl.style.display = 'block';
+    }
+  }
+}
+    
     // Скрывать клавиатуру при тапе по пустому месту
     function setupTapToBlur() {
         ['touchstart', 'mousedown'].forEach(evtName => {
@@ -803,9 +844,18 @@
                 items: totalItems,
                 quantity: totalQty
             },
+           
             meta: {
                 repName: document.getElementById('repName').textContent,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+
+  // главное:
+  chatId: tgUser?.id || null,
+  username: tgUser?.username || null,
+
+  // очень желательно для проверки подлинности на сервере:
+  tgInitData: tgInitData || null
+
             }
         };
     }
